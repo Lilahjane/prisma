@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model raw {
+  id         String       @id @default(cuid())
+  json       Json
+  created_at DateTime     @default(now())
+
+  recipe_info        recipe_info?
+  nutrients          nutrients[]
+  dirty_ingredients  dirty_ingredients[]
+}
+
+model recipe_info {
+  recipe_id      String  @id @default(cuid())
+  url            String? @db.VarChar(250)
+  host           String? @db.VarChar(250)
+  image          String? @db.VarChar(250)
+  title          String? @db.VarChar(250)
+  author         String? @db.VarChar(250)
+  yields         String? @db.VarChar(250)
+  cuisine        String? @db.VarChar(250)
+  ratings        String?
+  instructions   String? @db.VarChar(250)
+  instructions_list String[]
+  category       String? @db.VarChar(250)
+  language       String? @db.VarChar(250)
+  cook_time      String? @db.VarChar(250)
+  prep_time      String?
+  total_time     String?
+  site_name      String? @db.VarChar(250)
+  description    String?
+  canonical_url  String? @db.VarChar(250)
+  ratings_count  String?
+
+  raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+}
+
+model nutrients {
+  id                      String @id @default(cuid())
+  recipe_id               String
+  calories                String? @db.VarChar(250)
+  fat_content             String? @db.VarChar(250)
+  fiber_content           String? @db.VarChar(250)
+  sugar_content           String? @db.VarChar(250)
+  sodium_content          String? @db.VarChar(250)
+  protein_content         String? @db.VarChar(250)
+  cholesterol_content     String? @db.VarChar(250)
+  carbohydrate_content    String? @db.VarChar(250)
+  saturated_fat_content   String? @db.VarChar(250)
+  unsaturated_fat_content String? @db.VarChar(250)
+
+  raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+}
+
+model dirty_ingredients {
+  id          String @id @default(cuid())
+  recipe_id   String
+  ingredient  String @db.VarChar(600)
+
+  raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+}
