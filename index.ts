@@ -12,6 +12,35 @@ app.use(cors({
 
 app.use(express.json());
 
+app.get("/load-recipes", async (_, res) => {
+  const dbrecipes = await prisma.recipe_info.findMany();
+  res.json(dbrecipes);
+});
+
+app.get("/load-recipes/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const recipe = await prisma.recipe_info.findUnique({
+      where: { recipe_id: id }   // since your model uses recipe_id as a string
+    });
+
+    if (!recipe) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    res.json(recipe);
+  } catch (err) {
+    console.error("Error fetching recipe by ID:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+  
+});
+
+
+
+
+
 app.post("/recipes", async (req, res) => {
   const recipeJson = req.body;
 
@@ -48,28 +77,24 @@ app.post("/recipes", async (req, res) => {
           url: recipeJson.url,
           cook_time: recipeJson.cook_time,
           cuisine: recipeJson.cuisine,
+          calories: recipeJson.nutrients.calories,
+          fat_content: recipeJson.nutrients.fatContent,
+          fiber_content: recipeJson.nutrients.fiberContent,
+          sugar_content: recipeJson.nutrients.sugarContent,
+          sodium_content: recipeJson.nutrients.sodiumContent,
+          protein_content: recipeJson.nutrients.proteinContent,
+          cholesterol_content: recipeJson.nutrients.cholesterolContent,
+          carbohydrate_content: recipeJson.nutrients.carbohydrateContent,
+          saturated_fat_content: recipeJson.nutrients.saturatedFatContent,
+          unsaturated_fat_content: recipeJson.nutrients.unsaturatedFatContent,
+
+
         },
       });
     }
 
-    // Step 3: Insert into nutrients
-    if (recipeJson.calories || recipeJson.nutrients) {
-      await prisma.nutrients.create({
-        data: {
-          recipe_id: recipeId,
-          calories: recipeJson.calories,
-          fat_content: recipeJson.fat_content,
-          fiber_content: recipeJson.fiber_content,
-          sugar_content: recipeJson.sugar_content,
-          sodium_content: recipeJson.sodium_content,
-          protein_content: recipeJson.protein_content,
-          cholesterol_content: recipeJson.cholesterol_content,
-          carbohydrate_content: recipeJson.carbohydrate_content,
-          saturated_fat_content: recipeJson.saturated_fat_content,
-          unsaturated_fat_content: recipeJson.unsaturated_fat_content,
-        },
-      });
-    }
+
+
 
     // Step 4: Insert ingredients
     if (Array.isArray(recipeJson.ingredients) && recipeJson.ingredients.length > 0) {

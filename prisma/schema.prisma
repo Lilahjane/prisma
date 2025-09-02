@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,12 +14,12 @@ model raw {
   created_at DateTime     @default(now())
 
   recipe_info        recipe_info?
-  nutrients          nutrients[]
   dirty_ingredients  dirty_ingredients[]
 }
 
 model recipe_info {
-  recipe_id      String  @id @default(cuid())
+  
+  recipe_id      String @id 
   url            String? @db.VarChar(250)
   host           String? @db.VarChar(250)
   image          String? @db.VarChar(250)
@@ -39,13 +39,6 @@ model recipe_info {
   description    String?
   canonical_url  String? @db.VarChar(250)
   ratings_count  String?
-
-  raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
-}
-
-model nutrients {
-  id                      String @id @default(cuid())
-  recipe_id               String
   calories                String? @db.VarChar(250)
   fat_content             String? @db.VarChar(250)
   fiber_content           String? @db.VarChar(250)
@@ -60,6 +53,7 @@ model nutrients {
   raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
 }
 
+
 model dirty_ingredients {
   id          String @id @default(cuid())
   recipe_id   String
@@ -67,3 +61,5 @@ model dirty_ingredients {
 
   raw raw @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
 }
+
+
